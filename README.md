@@ -1,6 +1,20 @@
-# Local-Global SIRENs - Anonymous Submission
+# Local-Global SIRENs
 
 Code implementation for the paper "Croppable Implicit Neural Representations with Local-Global SIRENs".
+
+Video and audio decoding examples are available as part of the supplementary material, under the `decoding_examples` directory.
+- `video/cat_video_decoded.mp4` is the side-by-side decoded videos of the cat example. Local-Global SIRENs are on the *left*, and SIREN-per-Partition is on the *right*.
+- 'audio' contains the decoded `bach` audio example for each method, after 1k and 5k iterations.
+
+## Opening Notes
+We extend our gratitude to the anonymous reviewers who are dedicating their valuable time to review our paper and code. 
+Your constructive feedback plays an indispensable role in enhancing the quality of our work. 
+
+Should you have any inquiries or suggestions during this anonymous review period, please feel free to contact us through the appropriate channels. 
+
+Best regards,
+
+The Local-Global SIRENs team
 
 ## Abstract
 
@@ -20,8 +34,9 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
 
 ## Technological Overview
 
-* The code is based on the SIREN - "[SIREN: Implicit Neural Representations with Periodic Activation Functions](https://github.com/vsitzmann/siren)."
-* For configuration management, we utilize Pyrallis. 
+* The code is based on the SIREN:
+  * [SIREN: Implicit Neural Representations with Periodic Activation Functions](https://github.com/vsitzmann/siren)
+* For configuration management, we use `pyrallis`. 
 * WandB (Weights and Biases) is integrated into the code for experiment tracking and visualization. You can deactivate WandB by setting the `--use_wandb False` option.
 
 
@@ -33,21 +48,23 @@ conda activate lgsirens
 ```
 
 ## Training
-Refer to the appendix of the paper for the hyperparameters used for training.
-- - The type of network is passed using `--mode`. The options are `lg` for Local-Global SIREN, `lc` for SIREN-per-Partition, and `mlp` for SIREN.
+
+> Refer to the appendix of the paper for the hyperparameters used for training.
+
+- The type of network is passed using `--mode`. The options are `lg` for Local-Global SIREN, `lc` for SIREN-per-Partition, and `mlp` for SIREN.
 - Global hidden features are passed using `--global_hidden_features`
-- Local hidden features are passed using `--hidden_features`. Note that the script expects the number of local hidden features to be a multiplied by the number of partitions. For example, if you want to use 14 local hidden features per partition for a total of 16*16=256 partitions, you should pass `--hidden_features 3584` (14*256=3584).
+- Local hidden features are passed using `--hidden_features`.
+  - Note that the script expects the number of local hidden features to be a multiplied by the number of partitions. For example, if you want to use 14 local hidden features per partition for a total of 16\*16=256 partitions, you should pass `--hidden_features 3584` (14\*256=3584).
 - The number of partitions is passed using `--downsample`. For example:
-  - For an image encoding task, if you want to use 16*16=256 partitions, you should pass `--downsample [16,16]`.
+  - For an image encoding task, if you want to use 16\*16=256 partitions, you should pass `--downsample [16,16]`.
   - For an audio encoding task, if you want to use 32 partitions, you should pass `--downsample [1,32,1]`.
-  - For a video encoding task, if you want to use 5*16*16=1280 partitions, you should pass `--downsample [5,16,16]`.
+  - For a video encoding task, if you want to use 5\*16\*16=1280 partitions, you should pass `--downsample [5,16,16]`.
 - The number of overlapping coordinates in each dimension is passed using '--overlaps'. For example:
   - For a video encoding task, if you want to sample from 2 adjacent frames and from 1 pixel in each spatial dimension, you should pass `--overlaps [2,1,1]` (this is what we used in the paper).
 - For video encoding tasks, the fraction of sampled pixels in each iteration is passed using `--sample_frac`. For example, if you want to sample 2% of the pixels in each iteration, you should pass `--sample_frac 0.02`.
 - Experiment scripts are run from the experiments_scripts directory: 
-```bash
-cd experiment_scripts
-```
+
+> We present examples for image, audio, and video encoding tasks. The examples are based on the hyperparameters used in the paper.
 
 ### Example - Image Encoding
 To train the model to encode an image, run the following command:
