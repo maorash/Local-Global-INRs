@@ -27,7 +27,7 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
   - [Example - Audio Encoding](#example---audio-encoding)
   - [Example - Video Encoding](#example---video-encoding)
 - [Debug Outputs](#debug-outputs)
-- [Decoding Videos](#decoding-videos)
+- [Decoding and Cropping Videos](#decoding-and-cropping-videos)
 
 
 ## Technological Overview
@@ -113,7 +113,7 @@ python train_video.py --experiment_name test_video_siren --num_epochs 5001 --ste
 During training, debug outputs are logged to the `logs/` directory by default (this can be changed using the `--logging_root` flag).
 We log both the metrics and the visualizations using Tensorboard. When `--use_wandb` is passed, we also log the metrics to Weights and Biases.
 
-## Decoding and Crooping Videos
+## Decoding and Cropping Videos
 To decode a video using the trained model, use similar configuration as before, but pass the `--decode` flag and the `--checkpoint_path` flag. For example:
 ```bash
 # From the experiment_scripts directory
