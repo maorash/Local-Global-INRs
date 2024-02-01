@@ -113,7 +113,7 @@ python train_video.py --experiment_name test_video_siren --num_epochs 5001 --ste
 During training, debug outputs are logged to the `logs/` directory by default (this can be changed using the `--logging_root` flag).
 We log both the metrics and the visualizations using Tensorboard. When `--use_wandb` is passed, we also log the metrics to Weights and Biases.
 
-## Decoding Videos
+## Decoding and Crooping Videos
 To decode a video using the trained model, use similar configuration as before, but pass the `--decode` flag and the `--checkpoint_path` flag. For example:
 ```bash
 # From the experiment_scripts directory
@@ -121,3 +121,10 @@ To decode a video using the trained model, use similar configuration as before, 
 # Local-Global SIREN
 python decode_video.py --experiment_name test_video_lg --mode lg --dataset cat --downsample 5 8 8 --overlaps 2 1 1 --hidden_features 17600 --global_hidden_features 180 --decode --checkpoint_path model.pth
 ```
+
+To crop specific partitions of the video, use any one (or more) of the following flags:
+- `--crop_entire_dim_values`: A list of three lists. Crop partitions based on indices in specific dimensions, across all the signal. For example:
+  - To crop the entire spatial border of the video (across all frames), assuming the video was downsampled by a factor of 8 in each spatial dimension, pass `--crop_entire_dim_values [[],[0,7],[0,7]]`.
+  - To crop the second and third partitions in the temporal dimension (across all spatial locations), pass `--crop_entire_dim_values [[1,2],[],[]]`.
+- '--crop_partition_indices': A list of lists of size three. Crop specific partitions based on their indices (in this case, each partition is indexed by three coordinates). For example:
+  - To crop partition at the start of the video, in the bottom right corner (assuming the video was downsampled by a factor of 8 in each spatial dimension), pass `--crop_partition_indices [[0,7,7]]`.

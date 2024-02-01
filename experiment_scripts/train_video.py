@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass, field
 from functools import partial
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Tuple
 
 import numpy as np
 import pyrallis
@@ -37,6 +37,8 @@ class TrainingConfig:
     checkpoint_path: Union[str, None] = field(default=None)
     debug: bool = field(default=False)
     decode: bool = field(default=False)
+    crop_entire_dim_values: List[List[int]] = field(default=None)
+    crop_partition_indices: List[Tuple[int, int, int]] = field(default=None)
 
 
 @dataclass
@@ -81,6 +83,27 @@ def main(opt: LocalGlobalConfig):
             print("Must specify checkpoint path")
             return
         model.load_state_dict(torch.load(opt.checkpoint_path))
+
+        if opt.mode in ['lc', 'lg']:
+            cropped_dim_values = opt.crop_entire_dim_values if opt.crop_entire_dim_values is not None else [[], [], []]
+            cropped_partition_indices = opt.crop_partition_indices if opt.crop_partition_indices is not None else []
+            video_shape = coord_dataset.dataset.shape
+            partition_deltas = [video_shape[i] // opt.downsample[i] for i in range(len(video_shape))]
+            for i in range(len(cropped_dim_values)):
+                cropped_dim_values[i] = [j * partition_deltas[i] for j in cropped_dim_values[i]]
+            for i in range(len(cropped_partition_indices)):
+                cropped_partition_indices[i] = tuple(np.array(partition_deltas) * np.array(cropped_partition_indices[i]))
+
+            flattened_partition_indices = [i for i, s in enumerate(coord_dataset.coords_slices) if (
+                        s[0].start in cropped_dim_values[0] or s[1].start in cropped_dim_values[1] or s[2].start in cropped_dim_values[2])]
+            for partition_index in cropped_partition_indices:
+                for i, s in enumerate(coord_dataset.coords_slices):
+                    if s[0].start == partition_index[0] and s[1].start == partition_index[1] and s[2].start == partition_index[2]:
+                        flattened_partition_indices.append(i)
+
+            model.crop(flattened_partition_indices)
+            print(f"Parameters after crop: {model.count_parameters(cropped_partition_indices=flattened_partition_indices)}")
+
         video = utils.decode_video(model, coord_dataset, opt.mode in ['lc', 'lg'])
         dataio.Video.write_video(video, f"{experiment_name}.mp4")
         return

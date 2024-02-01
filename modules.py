@@ -281,7 +281,7 @@ class INR(nn.Module):
         output = self.net(coords)
         return {'model_in': coords_org, 'model_out': output}
 
-    def count_parameters(self):
+    def count_parameters(self, cropped_partition_indices=None):
         def _count_model_parameters(model):
             return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
@@ -291,7 +291,17 @@ class INR(nn.Module):
             counts["Global Parameters"] = _count_model_parameters(self.net.global_net) + \
                                           _count_model_parameters(self.net.agg_func)
 
+        if self.mode in ['lc', 'lg'] and cropped_partition_indices is not None:
+            counts["Local Parameters"] *= ((self.net.groups - len(cropped_partition_indices)) / self.net.groups)
+            counts["Total Parameters"] = counts["Local Parameters"] + counts["Global Parameters"]
+
         return counts
+
+    def crop(self, partition_indices):
+        with torch.no_grad():
+            for i in range(len(self.net.net)):
+                self.net.net[i][0].weight[partition_indices] = 0
+
 
 
 
