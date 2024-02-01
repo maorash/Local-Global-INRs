@@ -1,16 +1,14 @@
 # Local-Global SIRENs
 
-Code implementation for the paper "Croppable Implicit Neural Representations with Local-Global SIRENs".
+* Extended qualitative results, including audio, video and cropping are available at:
+  * [https://sites.google.com/view/local-global-sirens/home](https://sites.google.com/view/local-global-sirens/home).
 
-Video and audio decoding examples are available as part of the supplementary material, under the `decoding_examples` directory.
-- `video/cat_video_decoded.mp4` is the side-by-side decoded videos of the cat example. Local-Global SIRENs are on the *left*, and SIREN-per-Partition is on the *right*.
-- 'audio' contains the decoded `bach` audio example for each method, after 1k and 5k iterations.
+
+The supplementary material contains the code implementation for the paper *"Croppable Implicit Neural Representations with Local-Global SIRENs"*.
 
 ## Opening Notes
 We extend our gratitude to the anonymous reviewers who are dedicating their valuable time to review our paper and code. 
 Your constructive feedback plays an indispensable role in enhancing the quality of our work. 
-
-Should you have any inquiries or suggestions during this anonymous review period, please feel free to contact us through the appropriate channels. 
 
 Best regards,
 
