@@ -165,3 +165,17 @@ To crop specific partitions of the video, use any one (or more) of the following
   - To crop the second and third partitions in the temporal dimension (across all spatial locations), pass `--crop_entire_dim_values [[1,2],[],[]]`.
 - '--crop_partition_indices': A list of lists of size three. Crop specific partitions based on their indices (in this case, each partition is indexed by three coordinates). For example:
   - To crop partition at the start of the video, in the bottom right corner (assuming the video was downsampled by a factor of 8 in each spatial dimension), pass `--crop_partition_indices [[0,7,7]]`.
+
+## 3D Shape Encoding
+The 3D shape encoding code is based on the official INCODE implementation.
+There is a notebook available under the `experiment_scripts` directory, `train_3d.ipynb`, that can be used to encode Lucy, as seen in the paper.
+
+## Local-Global INCODE and Downstream tasks
+All downstream task code is available in the `incode_experiments` directory. 
+The code is based on the official INCODE implementation. 
+There are three notebooks, one for each downstream task:
+- `denoising.ipynb`: Denoising experiment
+- `superresolution.ipynb`: Super-resolution experiment
+- `ct_reconstruction.ipynb`: CT reconstruction experiment
+
+The notebooks are ready to run, and the results can be reproduced by following the notebooks.
