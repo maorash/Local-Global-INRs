@@ -1,0 +1,10 @@
+scikit-image
+PyMCubes
+plyfile
+trimesh
+pysdf
+ipywidgets
+pycollada
+opencv-python
+matplotlib
+skimage

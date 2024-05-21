@@ -314,26 +314,62 @@ class Implicit2DWrapper(torch.utils.data.Dataset):
 
 
 class ImplicitSingle2DWrapper(torch.utils.data.Dataset):
-    def __init__(self, dataset, sidelength=None, compute_diff=None, downsample=None, skip_transforms=False):
+    def __init__(self, dataset, sidelength=None, compute_diff=None, downsample=None, skip_transforms=False, n_samples=None, overlaps=None):
         if len(dataset) != 1:
             raise ValueError("Wrapper only supports a single 2D object")
 
         self.dataset = dataset
         self.dataset_wrapper = Implicit2DWrapper(dataset, sidelength, compute_diff, skip_transforms)
         self.in_dict, self.gt_dict = self.dataset_wrapper.__getitem__(0)
+        self.downsample = downsample
+        self.num_groups = np.prod(downsample) if downsample is not None else 1
+        self.n_samples = n_samples // self.num_groups if n_samples is not None else None
 
         if downsample is None:
             self.coords_slices, self.gt_slices = None, None
+            self.in_dict['coords_overlap'] = self.in_dict['coords']
+            self.gt_dict['img_overlap'] = self.gt_dict['img']
         else:
-            self.in_dict['coords'], self.coords_slices = partition_signal(self.in_dict['coords'],
+            coords = self.in_dict['coords']
+            img = self.gt_dict['img']
+
+            self.in_dict['coords'], self.coords_slices = partition_signal(coords,
                                                                           self.dataset_wrapper.sidelength, downsample)
-            self.gt_dict['img'], self.gt_slices = partition_signal(self.gt_dict['img'],
+            self.gt_dict['img'], self.gt_slices = partition_signal(img,
                                                                    self.dataset_wrapper.sidelength, downsample)
+
+            self.in_dict['coords_overlap'], self.coords_slices_overlaps = partition_signal(coords,
+                                                                                           self.dataset_wrapper.sidelength,
+                                                                                           downsample,
+                                                                                           overlaps=overlaps)
+            self.gt_dict['img_overlap'], self.gt_slices_overlaps = partition_signal(img,
+                                                                                    self.dataset_wrapper.sidelength,
+                                                                                    downsample,
+                                                                                    overlaps=overlaps)
+
+        self.num_pixels = self.dataset_wrapper.sidelength[0] * self.dataset_wrapper.sidelength[1]
 
     def __len__(self):
         return len(self.dataset_wrapper)
 
     def __getitem__(self, idx):
+        if self.n_samples is not None:
+            if self.downsample is None:
+                selected_indices = torch.randperm(self.num_pixels)[:self.n_samples]
+                img = self.gt_dict['img'][selected_indices, :]
+                coords = self.in_dict['coords'][selected_indices, :]
+            else:
+                selected_indices = torch.randint(0, self.gt_dict['img_overlap'].shape[1], (self.num_groups,
+                                                                                           self.n_samples))
+                img = torch.gather(self.gt_dict['img_overlap'], dim=1,
+                                   index=selected_indices.unsqueeze(-1).expand(-1, -1, self.gt_dict['img_overlap'].shape[-1]))
+                coords = torch.gather(self.in_dict['coords_overlap'], dim=1,
+                                      index=selected_indices.unsqueeze(-1).expand(-1, -1,
+                                                                                  self.in_dict['coords_overlap'].shape[-1]))
+
+            return {'idx': idx, 'all_coords': self.in_dict['coords'], 'coords': coords, 'indices': selected_indices}, \
+                   {'img': img, 'raw_img': self.gt_dict['raw_img']}
+
         return self.in_dict, self.gt_dict
 
 

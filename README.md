@@ -20,22 +20,36 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
 
 ## Table of Contents
 
-- [Technological Overview](#technological-overview)
+- [Technological Overview and Sources](#technological-overview-and-sources)
 - [Installation](#installation)
-- [Training](#training)
+- [Encoding Images, Audio and Video](#training-on-images-audio-and-videos)
   - [Example - Image Encoding](#example---image-encoding)
   - [Example - Audio Encoding](#example---audio-encoding)
   - [Example - Video Encoding](#example---video-encoding)
+- [Encoding Images with Automatic Partitioning](#encoding-images-with-automatic-partitioning)
 - [Debug Outputs](#debug-outputs)
 - [Decoding and Cropping Videos](#decoding-and-cropping-videos)
 
 
-## Technological Overview
+## Technological Overview and Sources
 
 * Most of our codebase is based on SIREN:
   * [SIREN: Implicit Neural Representations with Periodic Activation Functions](https://github.com/vsitzmann/siren)
+  * Released under MIT License
+* Audio and video data samples under the `data` directory are taken from the official SIREN repository.
 * INCODE experiments are based on the official implementation:
   * [INCODE: Implicit Neural Conditioning with Prior Knowledge Embeddings(https://github.com/xmindflow/INCODE)
+  * Released under MIT License
+* The DIV2K images used in the experiments in the paper are under `data/DIV2K`
+  * `data/DIV2K/DIV2K_subset` contains the randomly selected 25 images, used in the image encoding experiments.
+  * `data/DIV2K/denoising` contains the image used in the denoising experiment.
+  * `data/DIV2K/superresolution` contains the image used in the super-resolution experiment.
+  * The full DIV2K dataset is available at [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
+  * The license agreement for DIV2K is mentioned in their website (academic use only).
+* The image used for CT reconstruction is `data/img_377_ct_reconstruction.png`
+  * The image is taken from the [Kaggle Lung Nodule Analysis dataset](https://luna16.grand-challenge.org/)
+* The shape used for 3D encoding is the Lucy dataset
+  * The shape is taken from [the Stanford 3D Scanning Repository](https://graphics.stanford.edu/data/3Dscanrep/)
 * For configuration management, we use `pyrallis`. 
 * WandB (Weights and Biases) is integrated into the code for experiment tracking and visualization. You can deactivate WandB by setting the `--use_wandb False` option.
 
