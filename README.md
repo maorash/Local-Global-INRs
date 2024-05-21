@@ -42,11 +42,12 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
 * INCODE experiments are based on the official implementation:
   * [INCODE: Implicit Neural Conditioning with Prior Knowledge Embeddings](https://github.com/xmindflow/INCODE)
   * Released under MIT License
-* The DIV2K images used in the experiments in the paper are under `data/DIV2K`
-  * `data/DIV2K/DIV2K_subset` contains the randomly selected 25 images, used in the image encoding experiments.
+* The DIV2K assets used in the experiments in the paper are under `data/DIV2K`
+  * `data/DIV2K/DIV2K_subset.txt` is the list of 25 randomly selected images, used as a subset for the image encoding experiments.
+    * Due to the supplementary material size limitation, we are not able to attach the images themselves.
+    * However, the full DIV2K dataset is available at [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K/), and the subset can be created by choosing the images provided in the list.
   * `data/DIV2K/denoising` contains the image used in the denoising experiment.
   * `data/DIV2K/superresolution` contains the image used in the super-resolution experiment.
-  * The full DIV2K dataset is available at [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
   * The license agreement for DIV2K is mentioned in their website (academic use only).
 * The image used for CT reconstruction is `data/img_377_ct_reconstruction.png`
   * The image is taken from the [Kaggle Lung Nodule Analysis dataset](https://luna16.grand-challenge.org/)
