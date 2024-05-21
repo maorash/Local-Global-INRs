@@ -50,6 +50,9 @@ class LocallyConnectedLayer(nn.Module):
             out += self.bias.unsqueeze(1)
         return out
 
+    def __repr__(self):
+        return f'LocallyConnectedLayer(groups={self.weight.shape[0]}, in_features={self.weight.shape[1]}, out_features={self.weight.shape[2]})'
+
 
 class LocallyConnectedBlock(nn.Module):
     def __init__(self, in_features, out_features, num_hidden_layers, hidden_features, groups,
@@ -271,7 +274,6 @@ class INR(nn.Module):
         else:
             raise ValueError("Unsupported mode")
 
-        print(self)
 
     def forward(self, model_input):
         # Enables us to compute gradients w.r.t. coordinates

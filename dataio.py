@@ -1,6 +1,6 @@
-import math
 from itertools import product
 
+import math
 import matplotlib.colors as colors
 import numpy as np
 import scipy.io.wavfile as wavfile
@@ -8,6 +8,7 @@ import scipy.ndimage
 import scipy.special
 import skimage
 import skimage.filters
+import torchvision
 
 np.float = np.float64
 np.int = np.int_
@@ -19,7 +20,7 @@ import skvideo.io
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
-from torchvision.transforms import Resize, Compose, ToTensor, Normalize
+from torchvision.transforms import Resize, Compose, ToTensor
 
 
 def get_mgrid(sidelen, dim=2):
@@ -173,6 +174,19 @@ class ImageFile(Dataset):
         return self.img
 
 
+class ImageFileFromArray(Dataset):
+    def __init__(self, img: np.array):
+        super().__init__()
+        self.img_channels = img.shape[-1] if len(img.shape) == 3 else 1
+        self.img = img
+
+    def __len__(self):
+        return 1
+
+    def __getitem__(self, idx):
+        return self.img
+
+
 class ImplicitAudioWrapper(torch.utils.data.Dataset):
     def __init__(self, dataset, downsample=None):
         self.dataset = dataset
@@ -226,17 +240,17 @@ class AudioFile(Dataset):
 
 
 class Implicit2DWrapper(torch.utils.data.Dataset):
-    def __init__(self, dataset, sidelength=None, compute_diff=None):
+    def __init__(self, dataset, sidelength=None, compute_diff=None, skip_transforms=False):
         if isinstance(sidelength, int):
             sidelength = (sidelength, sidelength)
         self.sidelength = sidelength
+        self.skip_transforms = skip_transforms
 
         self.size_transform = Compose([
             Resize(sidelength)
         ])
-        self.norm_transform = Compose([
-            ToTensor(),
-            Normalize(torch.Tensor([0.5]), torch.Tensor([0.5]))
+        self.tensor_transform = Compose([
+            ToTensor()
         ])
 
         self.compute_diff = compute_diff
@@ -247,8 +261,11 @@ class Implicit2DWrapper(torch.utils.data.Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        raw_image = self.size_transform(self.dataset[idx])
-        img = self.norm_transform(raw_image)
+        if self.skip_transforms:
+            raw_image = self.tensor_transform(self.dataset[idx])
+        else:
+            raw_image = self.tensor_transform(self.size_transform(self.dataset[idx]))
+        img = (raw_image - 0.5) / 0.5
 
         if self.compute_diff == 'gradients':
             img *= 1e1
@@ -287,7 +304,7 @@ class Implicit2DWrapper(torch.utils.data.Dataset):
 
     def get_item_small(self, idx):
         raw_image = self.size_transform(self.dataset[idx])
-        img = self.norm_transform(raw_image)
+        img = self.tensor_transform(raw_image)
         spatial_img = img.clone()
         img = img.permute(1, 2, 0).view(-1, self.dataset.img_channels)
 
@@ -297,12 +314,12 @@ class Implicit2DWrapper(torch.utils.data.Dataset):
 
 
 class ImplicitSingle2DWrapper(torch.utils.data.Dataset):
-    def __init__(self, dataset, sidelength=None, compute_diff=None, downsample=None):
+    def __init__(self, dataset, sidelength=None, compute_diff=None, downsample=None, skip_transforms=False):
         if len(dataset) != 1:
             raise ValueError("Wrapper only supports a single 2D object")
 
         self.dataset = dataset
-        self.dataset_wrapper = Implicit2DWrapper(dataset, sidelength, compute_diff)
+        self.dataset_wrapper = Implicit2DWrapper(dataset, sidelength, compute_diff, skip_transforms)
         self.in_dict, self.gt_dict = self.dataset_wrapper.__getitem__(0)
 
         if downsample is None:
@@ -416,7 +433,7 @@ class Implicit3DWrapper(torch.utils.data.Dataset):
         return in_dict, gt_dict
 
 
-def partition_signal(input, resolution, downsample, overlaps=None, selected_indices=None):
+def partition_signal(input, resolution, downsample, overlaps=None, selected_indices=None, pad_images=True):
     all_slices = []
     resolution = resolution + (input.shape[1],)
     downsample = downsample + (1,)
@@ -425,6 +442,19 @@ def partition_signal(input, resolution, downsample, overlaps=None, selected_indi
         overlaps = (0,) * len(downsample)
     else:
         overlaps = overlaps + (0,)
+
+    if pad_images and len(resolution) == 3:
+        padding = [0] * len(downsample)
+        for i, (factor, size) in enumerate(zip(downsample, resolution)):
+            if size % factor != 0:
+                padding[i] = factor - (size % factor)
+                print(f"Warning: Partition factor {factor} is not divided exactly by image dimension {size}, thus we pad with 'edge'")
+
+        input = input.reshape(resolution)
+        resolution = tuple([size + pad for size, pad in zip(resolution, padding)])
+        input = torchvision.transforms.Pad((0, 0) + tuple(padding)[:-1], # left, top, right and bottom borders respectively.
+                                           padding_mode='edge')(input.permute(2, 0, 1)).permute(1, 2, 0)
+        input = input.reshape(-1, input.shape[-1])
 
     for factor, size, overlap in zip(downsample, resolution, overlaps):
         slices = []

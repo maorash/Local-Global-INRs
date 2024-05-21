@@ -34,14 +34,16 @@ def train_minimum(model, dataloader, lr=1e-4, steps=1000):
 
 
 def train(model, train_dataloader, epochs, lr, steps_til_summary, epochs_til_checkpoint, model_dir, loss_fn,
-          summary_fn, val_dataloader=None, double_precision=False, clip_grad=False, loss_schedules=None):
+          summary_fn, val_dataloader=None, double_precision=False, clip_grad=False, loss_schedules=None,
+          global_weights_lr_factor=None, summary_values_compare_fn=None):
 
-    optim = torch.optim.Adam(lr=lr, params=model.parameters())
-
-    if os.path.exists(model_dir):
-        model_dir = model_dir + datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-
-    os.makedirs(model_dir)
+    if global_weights_lr_factor is not None:
+        print("Splitting lr")
+        optim = torch.optim.Adam([{'params': [p[1] for p in model.named_parameters() if 'global' not in p[0]], 'lr': lr},
+                                  {'params': [p[1] for p in model.named_parameters() if 'global' in p[0]],
+                                   'lr': lr / global_weights_lr_factor}], lr=lr)
+    else:
+        optim = torch.optim.Adam(lr=lr, params=model.parameters())
 
     summaries_dir = os.path.join(model_dir, 'summaries')
     utils.cond_mkdir(summaries_dir)
@@ -52,6 +54,7 @@ def train(model, train_dataloader, epochs, lr, steps_til_summary, epochs_til_che
     writer = SummaryWriter(summaries_dir)
 
     total_steps = 0
+    all_summary_values = []
 
     total_start_time = time.time()
     with tqdm(total=len(train_dataloader) * epochs) as pbar:
@@ -93,7 +96,13 @@ def train(model, train_dataloader, epochs, lr, steps_til_summary, epochs_til_che
                 if not total_steps % steps_til_summary:
                     torch.save(model.state_dict(),
                                os.path.join(checkpoints_dir, 'model_current.pth'))
-                    summary_fn(model, model_input, gt, model_output, writer, total_steps)
+                    summary_values = summary_fn(model, model_input, gt, model_output, writer, total_steps)
+                    if summary_values is not None:
+                        all_summary_values.append(summary_values)
+                        if summary_values_compare_fn is not None:
+                            if all(summary_values_compare_fn(summary_values, old_summary_values) for old_summary_values in
+                                      all_summary_values[:-1]):
+                                  torch.save(model.state_dict(), os.path.join(checkpoints_dir, 'model_best.pth'))
 
                 optim.zero_grad()
                 train_loss.backward()
@@ -133,7 +142,7 @@ def train(model, train_dataloader, epochs, lr, steps_til_summary, epochs_til_che
         np.savetxt(os.path.join(checkpoints_dir, 'train_losses_final.txt'),
                    np.array(train_losses))
 
-        return total_time
+        return total_time, all_summary_values
 
 
 class LinearDecaySchedule():

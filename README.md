@@ -1,10 +1,10 @@
-# Local-Global SIRENs
+# Local-Global INRs - Towards Croppable Implicit Neural Representations
 
 * Extended qualitative results, including audio, video and cropping are available at:
-  * [https://sites.google.com/view/local-global-sirens/home](https://sites.google.com/view/local-global-sirens/home).
+  * [https://sites.google.com/view/local-global-inrs](https://sites.google.com/view/local-global-inrs).
 
 
-The supplementary material contains the code implementation for the paper *"Croppable Implicit Neural Representations with Local-Global SIRENs"*.
+The supplementary material contains the code implementation for the paper *"Towards Croppable Implicit Neural Representations"*.
 
 ## Opening Notes
 We extend our gratitude to the anonymous reviewers who are dedicating their valuable time to review our paper and code. 
@@ -12,11 +12,11 @@ Your constructive feedback plays an indispensable role in enhancing the quality 
 
 Best regards,
 
-The Local-Global SIRENs team
+The Local-Global INRs team
 
 ## Abstract
 
-Implicit Neural Representations (INRs) have peaked interest in recent years due to their ability to encode natural signals using neural networks. While INRs allow for useful applications such as interpolating new coordinates and signal compression, their black-box nature makes it difficult to modify them post-training. In this paper, we explore the idea of editable INRs, and specifically focus on the widely used cropping operation. To this end, we present Local-Global SIRENs -- a novel INR architecture that supports cropping by design. Local-Global SIRENs are based on combining local and global feature extraction for signal encoding. What makes their design unique, is the ability to effortlessly remove specific portions of an encoded signal, with a proportional weight decrease. This is achieved by eliminating the corresponding weights from the network, without the need for retraining. Furthermore, we demonstrate that this architecture enables the straightforward extension of previously encoded signals, highlighting their potential and flexibility.
+Implicit Neural Representations (INRs) have peaked interest in recent years due to their ability to encode natural signals using neural networks. While INRs allow for useful applications such as interpolating new coordinates and signal compression, their black-box nature makes it difficult to modify them post-training. In this paper we explore the idea of editable INRs, and specifically focus on the widely used cropping operation. To this end, we present Local-Global SIRENs -- a novel INR architecture that supports cropping by design. Local-Global SIRENs are based on combining local and global feature extraction for signal encoding. What makes their design unique is the ability to effortlessly remove specific portions of an encoded signal, with a proportional weight decrease. This is achieved by eliminating the corresponding weights from the network, without the need for retraining. We further show how this architecture can be used to support the straightforward extension of previously encoded signals. Beyond signal editing, we examine how the Local-Global approach can accelerate training, enhance encoding on various signals, improve downstream performance, and be applied to modern INRs such as INCODE, highlighting its potential and flexibility.
 
 ## Table of Contents
 
@@ -32,8 +32,10 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
 
 ## Technological Overview
 
-* The code is based on the SIREN:
+* Most of our codebase is based on SIREN:
   * [SIREN: Implicit Neural Representations with Periodic Activation Functions](https://github.com/vsitzmann/siren)
+* INCODE experiments are based on the official implementation:
+  * [INCODE: Implicit Neural Conditioning with Prior Knowledge Embeddings(https://github.com/xmindflow/INCODE)
 * For configuration management, we use `pyrallis`. 
 * WandB (Weights and Biases) is integrated into the code for experiment tracking and visualization. You can deactivate WandB by setting the `--use_wandb False` option.
 
@@ -45,7 +47,7 @@ conda env create -f environment.yml
 conda activate lgsirens
 ```
 
-## Training
+## Training on Images, Audio and Videos
 
 > Refer to the appendix of the paper for the hyperparameters used for training.
 
@@ -107,6 +109,27 @@ python train_video.py --experiment_name test_video_lc --num_epochs 5001 --epochs
 
 # SIREN
 python train_video.py --experiment_name test_video_siren --num_epochs 5001 --steps_til_summary 1000 --epochs_til_ckpt 5000 --mode mlp --dataset cat --hidden_features 1030
+```
+
+## Encoding Images with Automatic Partitioning
+There are three parameters that control the automatic partitioning logic:
+* First and foremost, the `--partition_size` argument sets the desired partition size
+* The `--auto_total_number_of_parameters` argument sets the required total number of parameters in the network
+  * It is set by default to 200k, and might deviate by roughly 5-10%
+  * This is equivalent to an MLP with 3 hidden layers and 256 hidden units
+* The `--auto_global_weights_factor' argument sets the ratio of global weights to local weights
+  * It is set by default to 10%, and might deviate by roughly 5-10%
+  * We use the same ratio for the global weights when encoding images throughout the paper
+
+
+### Example
+To train the model to encode an image with automatic partitioning on a DIV2K image, downsampled by 4 before training, run the following command:
+
+```bash
+# From the experiment_scripts directory
+
+# Local-Global SIREN
+PYTHONPATH=../ python train_img.py --experiment_name test_image_lg --dataset_path <PATH_TO_DIV2K_IMAGE> --image_resolution_factor 4 --num_epochs 2001 --steps_til_summary 200 --epochs_til_ckpt 1000 --mode lg --partition_size [32,32]
 ```
 
 ## Debug Outputs

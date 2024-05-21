@@ -125,7 +125,7 @@ def main(opt: LocalGlobalConfig):
                              f"DS_{opt.downsample}" if opt.downsample else 'DS_None',
                              f"OL_{opt.overlaps}" if opt.overlaps else 'OL_None'])
 
-        training_time = training.train(model=model, train_dataloader=dataloader, epochs=opt.num_epochs, lr=opt.lr,
+        training_time, _ = training.train(model=model, train_dataloader=dataloader, epochs=opt.num_epochs, lr=opt.lr,
                                        steps_til_summary=opt.steps_til_summary,
                                        epochs_til_checkpoint=opt.epochs_til_ckpt,
                                        model_dir=root_path, loss_fn=loss_fn, summary_fn=summary_fn)
