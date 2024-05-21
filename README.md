@@ -40,7 +40,7 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
   * Released under MIT License
 * Audio and video data samples under the `data` directory are taken from the official SIREN repository.
 * INCODE experiments are based on the official implementation:
-  * [INCODE: Implicit Neural Conditioning with Prior Knowledge Embeddings(https://github.com/xmindflow/INCODE)
+  * [INCODE: Implicit Neural Conditioning with Prior Knowledge Embeddings](https://github.com/xmindflow/INCODE)
   * Released under MIT License
 * The DIV2K images used in the experiments in the paper are under `data/DIV2K`
   * `data/DIV2K/DIV2K_subset` contains the randomly selected 25 images, used in the image encoding experiments.
@@ -50,7 +50,7 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
   * The license agreement for DIV2K is mentioned in their website (academic use only).
 * The image used for CT reconstruction is `data/img_377_ct_reconstruction.png`
   * The image is taken from the [Kaggle Lung Nodule Analysis dataset](https://luna16.grand-challenge.org/)
-* The shape used for 3D encoding is the Lucy dataset
+* The Lucy shape used for 3D encoding is under `data/preprocessed_lucy.npy`
   * The shape is taken from [the Stanford 3D Scanning Repository](https://graphics.stanford.edu/data/3Dscanrep/)
 * For configuration management, we use `pyrallis`. 
 * WandB (Weights and Biases) is integrated into the code for experiment tracking and visualization. You can deactivate WandB by setting the `--use_wandb False` option.
@@ -133,8 +133,8 @@ There are three parameters that control the automatic partitioning logic:
 * The `--auto_total_number_of_parameters` argument sets the required total number of parameters in the network
   * It is set by default to 200k, and might deviate by roughly 5-10%
   * This is equivalent to an MLP with 3 hidden layers and 256 hidden units
-* The `--auto_global_weights_factor' argument sets the ratio of global weights to local weights
-  * It is set by default to 10%, and might deviate by roughly 5-10%
+* The `--auto_global_weights_factor` argument sets the ratio of global weights to the entire network
+  * It is set by default to 0.1, and might deviate by roughly 5-10%
   * We use the same ratio for the global weights when encoding images throughout the paper
 
 
@@ -170,10 +170,13 @@ To crop specific partitions of the video, use any one (or more) of the following
 
 ## 3D Shape Encoding
 The 3D shape encoding code is based on the official INCODE implementation.
-There is a notebook available under the `experiment_scripts` directory, `train_3d.ipynb`, that can be used to encode Lucy, as seen in the paper.
+There is a notebook available under the `experiment_scripts` directory called `train_3d.ipynb` that can be used to encode Lucy, as seen in the paper.
 
 ## Local-Global INCODE and Downstream tasks
-All downstream task code is available in the `incode_experiments` directory. 
+All downstream task code is available in the `incode_experiments` directory.
+
+*Note: there are additional requirements that need to be installed to run the INCODE experiments, listed in the `incode_experiments/requirements.txt` file.*
+
 The code is based on the official INCODE implementation. 
 There are three notebooks, one for each downstream task:
 - `denoising.ipynb`: Denoising experiment
