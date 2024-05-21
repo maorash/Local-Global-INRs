@@ -29,6 +29,8 @@ Implicit Neural Representations (INRs) have peaked interest in recent years due 
 - [Encoding Images with Automatic Partitioning](#encoding-images-with-automatic-partitioning)
 - [Debug Outputs](#debug-outputs)
 - [Decoding and Cropping Videos](#decoding-and-cropping-videos)
+- [3D Shape Encoding](#3d-shape-encoding)
+- [Local-Global INCODE and Downstream tasks](#local-global-incode-and-downstream-tasks)
 
 
 ## Technological Overview and Sources
