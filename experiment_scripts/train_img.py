@@ -117,7 +117,7 @@ def resize_and_select_partitioning(opt: LocalGlobalConfig, img_dataset: dataio.I
     H, W = img_dataset.img.height, img_dataset.img.width
     print(f"Image size before resizing: {H, W}")
 
-    downsample = tuple(opt.downsample) if opt.downsample is not None else None
+    downsample = tuple(opt.downsample) if opt.downsample is not None else (1, 1)
 
     # If user requested a partition size, compute the partitioning factors
     if opt.partition_size is not None:

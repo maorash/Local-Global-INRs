@@ -161,6 +161,19 @@ class Camera(Dataset):
         return self.img
 
 
+class ImagePil(Dataset):
+    def __init__(self, img):
+        super().__init__()
+        self.img = img
+        self.img_channels = len(self.img.mode)
+
+    def __len__(self):
+        return 1
+
+    def __getitem__(self, idx):
+        return self.img
+
+
 class ImageFile(Dataset):
     def __init__(self, filename):
         super().__init__()
