@@ -174,3 +174,17 @@ There are three notebooks, one for each downstream task:
 - `ct_reconstruction.ipynb`: CT reconstruction experiment
 
 The notebooks are ready to run, and the results can be reproduced by following the notebooks.
+
+# Citation
+If you use this code or paper for your research, please cite the following:
+```
+@misc{ashkenazi2024croppableimplicitneuralrepresentations,
+      title={Towards Croppable Implicit Neural Representations}, 
+      author={Maor Ashkenazi and Eran Treister},
+      year={2024},
+      eprint={2409.19472},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2409.19472}, 
+}
+```
