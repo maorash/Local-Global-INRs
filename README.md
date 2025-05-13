@@ -178,13 +178,15 @@ The notebooks are ready to run, and the results can be reproduced by following t
 # Citation
 If you use this code or paper for your research, please cite the following:
 ```
-@misc{ashkenazi2024croppableimplicitneuralrepresentations,
-      title={Towards Croppable Implicit Neural Representations}, 
-      author={Maor Ashkenazi and Eran Treister},
-      year={2024},
-      eprint={2409.19472},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2409.19472}, 
+@inproceedings{NEURIPS2024_37eb3a53,
+ author = {Ashkenazi, Maor and Treister, Eran},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+ pages = {31473--31503},
+ publisher = {Curran Associates, Inc.},
+ title = {Towards Croppable Implicit Neural Representations},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/37eb3a53e5931a811c1a9498edce298a-Paper-Conference.pdf},
+ volume = {37},
+ year = {2024}
 }
 ```
